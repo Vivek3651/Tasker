@@ -1,0 +1,59 @@
+{% extends 'tasker/base.html' %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+{% block headlinks %}
+<style type="text/css">
+	.input-group{
+		padding-top: 10px !important;
+	}
+	button, a{
+		margin-top: 5px;
+	}
+</style>
+{% endblock %}
+{% block content %}
+	<div class="container">
+		<div class="login-container">
+			<h2>Create Your Task</h2>
+			<form method="post" novalidate>
+				{% csrf_token %}
+				<div class="col-sm-12">
+					<span>Select a task from the list:</span>
+					<div class="input-group">
+						<div class="input-group-addon">
+						{{ task_manager_form.task.label }}
+						</div>
+						{{ task_manager_form.task|attr:"class=form-control input-sm" }}
+					</div>	
+					{{ task_manager_form.task.errors }}
+				</div>
+				<div class="col-sm-12">
+					<button type="button" id="add-new-task" class="btn btn-sm btn-info" data-toggle="collapse" data-target="#new-task">Create New Task</button>
+				</div>
+				<div id="new-task" class="collapse">
+					<div class="col-sm-12">
+						<div class="input-group">
+							<div class="input-group-addon">
+							{{ task_form.task_name.label }}
+							</div>
+							{{ task_form.task_name|attr:"class=form-control input-sm" }}
+						</div>	
+						{{ task_form.task_name.errors }}
+					</div>
+					<div class="col-sm-12" style="padding-top: 12px;">
+						{{ task_form.task_description.label }}
+						{{ task_form.task_description|attr:"class=form-control input-sm" }}
+						{{ task_form.task_description.errors }}
+					</div>
+				</div>
+				<br>
+				<div class="col-xs-6">
+					<button class="btn btn-sm btn-success" type="submit">Save</button>
+				</div>
+			</form>
+			<div class="col-xs-6">
+				<a class="btn btn-sm btn-primary" href="{% url 'task_list' %}" style="float:right;">Back</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}

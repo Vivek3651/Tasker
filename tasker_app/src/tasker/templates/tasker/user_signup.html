@@ -1,0 +1,83 @@
+{% extends 'tasker/base.html' %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+{% block headlinks %}
+<style type="text/css">
+	.input-group{
+		padding: 5px !important;
+	}
+	.user-signup{
+		padding: 10px;
+	}
+</style>
+{% endblock %}
+{% block content %}
+	<div class="container">
+		<h1 align="center">User sign up</h1>
+		<div class="user-signup">
+			<div class="row">
+				<form method="POST">{% csrf_token %}
+					<div class="col-sm-12">
+						<div class="input-group">
+							<div class="input-group-addon">
+							{{ form.username.label }}
+							</div>
+							{{ form.username|attr:"class=form-control input-sm" }}
+							</div>	
+							{{ form.username.errors }}
+					</div>
+					<div class="col-sm-6">
+						<div class="input-group">
+							<div class="input-group-addon">
+							{{ form.first_name.label }}
+							</div>
+							{{ form.first_name|attr:"class=form-control input-sm" }}
+							</div>	
+							{{ form.first_name.errors }}
+					</div>
+					<div class="col-sm-6">
+						<div class="input-group">
+							<div class="input-group-addon">
+							{{ form.last_name.label }}
+							</div>
+							{{ form.last_name|attr:"class=form-control input-sm" }}
+							</div>	
+							{{ form.last_name.errors }}
+					</div>
+					<div class="col-sm-12">
+						<div class="input-group">
+							<div class="input-group-addon">
+							{{ form.email.label }}
+							</div>
+							{{ form.email|attr:"class=form-control input-sm" }}
+							</div>	
+							{{ form.email.errors }}
+					</div>
+					<div class="col-sm-6">
+						<div class="input-group">
+							<div class="input-group-addon">
+							{{ form.password1.label }}
+							</div>
+							{{ form.password1|attr:"class=form-control input-sm" }}
+							</div>	
+							{{ form.password1.errors }}
+					</div>
+					<div class="col-sm-6">
+						<div class="input-group">
+							<div class="input-group-addon">
+							{{ form.password2.label }}
+							</div>
+							{{ form.password2|attr:"class=form-control input-sm" }}
+							</div>	
+							{{ form.password2.errors }}
+					</div>
+					<br>
+					<div class="col-sm-12" style="padding-top: 20px;">
+						<button class="btn btn-sm btn-success" style="float: right;width:100%;">Submit</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		<a class="btn btn-sm" href="{% url 'login' %}">Back to login Page</a>
+	</div>
+{% endblock %}

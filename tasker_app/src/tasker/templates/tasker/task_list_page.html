@@ -1,0 +1,171 @@
+{% extends 'tasker/base.html' %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+{% block headlinks %}
+<style type="text/css">
+	.right-side-button{
+		margin: 20px;
+		float: right;
+	}
+	.left-side-button{
+		margin: 20px;
+		float: right;
+	}
+	.no_padding {
+		padding: 0px 0px 0px 0px;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+	<a class="right-side-button" href="{% url 'logout' %}">Log Out</a>
+	<h1>Welcome To Tasker</h1>
+	<br>
+	<ul class="nav nav-tabs">
+	    <li class="active"><a data-toggle="tab" href="#active-tasks">Active Tasks</a></li>
+	    <li><a data-toggle="tab" href="#completed-tasks">Completed Tasks</a></li>
+  	</ul>
+	<div class="tab-content">
+		<div id="active-tasks" class="tab-pane fade in active no_padding">
+			<table class="table table-responsive">
+				<thead>
+					<th>User</th>
+					<th>Task Name</th>
+					<th>Task Description</th>
+					<th>Status</th>
+					<th>Created</th>
+					<th>Edit Task</th>
+					<th>Mark Done</th>
+					<th>Remove</th>
+				</thead>
+				<tbody>
+					{% for x in task_list %}
+					<tr>
+						<td>{{ x.task_owner }}</td>
+						<td>{{ x.task }}</td>
+						<td>{{ x.task.task_description }}</td>
+						<td>{% if x.task_status == "U" %}Undone{% elif x.task_status == "D" %}Done{% endif %}</td>
+						<td>{{ x.timestamp|date:"D d M Y" }}</td>
+						<td><span data-toggle="modal" data-target="#editTaskModal"><i class="fas fa-edit" style="color:#3dafce;" onclick="editTask({{x.id}}, 'markDone');"></i></span>
+						</td>
+						<td>{% if x.task_status != "D" %}<span data-toggle="modal" data-target="#actionModal"><i class="fas fa-check" style="color:green;" onclick="updateTask({{x.id}}, 'markDone');"></i></span>
+						{% else %}
+						<span data-toggle="modal" data-target="#actionModal"><i class="fas fa-check" style="color:gray;" onclick="updateTask({{x.id}}, 'markUndone');"></i></span>
+						{% endif %}
+						</td>
+						<td><span data-toggle="modal" data-target="#actionModal"><i class="fas fa-times" style="color:red;" onclick="updateTask({{x.id}},'delete');"></i></span>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<div id="completed-tasks" class="tab-pane fade">
+			<table class="table table-responsive">
+				<thead>
+					<th>User</th>
+					<th>Task Name</th>
+					<th>Task Description</th>
+					<th>Status*</th>
+					<th>Created</th>
+					<th>Completed By</th>
+				</thead>
+				<tbody>
+					{% for x in completed_task_list %}
+					<tr>
+						<td>{{ x.task_owner }}</td>
+						<td>{{ x.task }}</td>
+						<td>{{ x.task.task_description }}</td>
+						<td>{{ x.task_status }}</td>
+						<td>{{ x.timestamp|date:"D d M Y" }}</td>
+						<td>{{ x.completed_by }}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="row">
+			<a class="btn btn-sm btn-info left-side-button" href="{% url 'task_list' %}?status={% if not status or status == 'all' %}active{% else %}all{% endif %}">{% if not status or status == 'all' %}Hide Completed Tasks{% else %}Show all the tasks{% endif %}</a>
+			<a class="btn btn-sm btn-success right-side-button" href="{% url 'task_create' %}">Add New Task</a>
+	</div>
+</div>
+<div class="modal fade" id="actionModal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" id="actionEventForm">{% csrf_token %}
+	        <div class="modal-header">
+	          <button type="button" class="close" data-dismiss="modal">&times;</button>
+	          <h4 class="modal-title"></h4>
+	        </div>
+	        <div id="users_list" class="modal-body" hidden>
+	        	<div class="col-sm-12" style="padding: 40px;">
+					<div class="input-group">
+						<div class="input-group-addon">
+							{{ users_list_form.user.label }}
+						</div>
+						{{ users_list_form.user|attr:"class=form-control input-sm" }}
+					</div>	
+					{{ users_list_form.user.errors }}
+				</div>
+	        </div>
+	        <div class="modal-footer">
+	          <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+	          <button class="btn btn-sm btn-primary" type="submit">Yes</button>
+	        </div>
+        </form>
+      </div>
+    </div>
+ </div>
+ <div class="modal fade" id="editTaskModal" role="dialog">
+</div>
+{% endblock %}
+{% block footscripts %}
+<script>
+	function updateTask(taskID, actionStatus){
+		var url_mask;
+		var modalTitle;
+		var backgroundColour;
+		$(".modal-header").css('background','');
+		$("#users_list").attr("hidden", true);
+
+		if (actionStatus === 'delete'){
+
+			modalTitle = "Do you want to remove this task?";
+			url_mask = "{% url 'task_delete' pk=12345 %}".replace(/12345/, taskID.toString());
+			backgroundColour = "#e88b8b";
+
+		}else if(actionStatus === 'markDone'){
+
+			modalTitle = "Do you want to mark this task as done?";
+			url_mask = "{% url 'task_update' pk=12345 %}?status=done".replace(/12345/, taskID.toString());
+			backgroundColour = "lightblue";
+			$("#users_list").attr("hidden", false);
+
+		}else if(actionStatus === 'markUndone'){
+
+			modalTitle = "Do you want to mark this task as undone?";
+			url_mask = "{% url 'task_update' pk=12345 %}?status=undone".replace(/12345/, taskID.toString());
+			backgroundColour = "lightgray";
+
+		}
+		$(".modal-header").css('background',backgroundColour);
+		$(".modal-title").text(modalTitle);
+		$("#actionEventForm").attr('action', url_mask);
+	}
+</script>
+<script>
+function editTask(taskID){
+	var url_mask = "{% url 'task_edit_url' pk=12345 %}".replace(/12345/, taskID.toString());
+	$.ajax({
+	    url : url_mask, // the endpoint
+		    type : "GET", // http method
+		    success : function setEditTaskFields(data){
+		    	$("#editTaskModal").html(data);
+		    },
+		    dataType: 'html'
+	});
+} 
+</script>
+{% endblock %}
